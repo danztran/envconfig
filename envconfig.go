@@ -22,11 +22,20 @@ var ErrInvalidSpecification = errors.New("specification must be a struct pointer
 var (
 	gatherRegexp  = regexp.MustCompile("([^A-Z]+|[A-Z]+[^A-Z]+|[A-Z]+)")
 	acronymRegexp = regexp.MustCompile("([A-Z]+)([A-Z][^A-Z]+)")
+	DefaultOption = Options{
+		TagName:        "envconfig",
+		SplitWords:     false,
+		WordSeperator:  "_",
+		InnerSeperator: "_",
+	}
 )
 
 // Options to change default parsing.
 type Options struct {
-	SplitWords bool
+	TagName        string
+	SplitWords     bool
+	WordSeperator  string
+	InnerSeperator string
 }
 
 // A ParseError occurs when an environment variable cannot be converted to
@@ -103,7 +112,7 @@ func gatherInfo(prefix string, spec interface{}, options Options) ([]varInfo, er
 			Name:  ftype.Name,
 			Field: f,
 			Tags:  ftype.Tag,
-			Alt:   strings.ToUpper(ftype.Tag.Get("envconfig")),
+			Alt:   strings.ToUpper(ftype.Tag.Get(options.TagName)),
 		}
 
 		// Default to the field name as the env var name (will be upcased)
@@ -124,14 +133,14 @@ func gatherInfo(prefix string, spec interface{}, options Options) ([]varInfo, er
 					}
 				}
 
-				info.Key = strings.Join(name, "_")
+				info.Key = strings.Join(name, options.WordSeperator)
 			}
 		}
 		if info.Alt != "" {
 			info.Key = info.Alt
 		}
 		if prefix != "" {
-			info.Key = fmt.Sprintf("%s_%s", prefix, info.Key)
+			info.Key = fmt.Sprintf("%s%s%s", prefix, options.InnerSeperator, info.Key)
 		}
 		info.Key = strings.ToUpper(info.Key)
 		infos = append(infos, info)
@@ -162,7 +171,7 @@ func gatherInfo(prefix string, spec interface{}, options Options) ([]varInfo, er
 // that we don't know how or want to parse. This is likely only meaningful with
 // a non-empty prefix.
 func CheckDisallowed(prefix string, spec interface{}) error {
-	return CheckDisallowedWithOptions(prefix, spec, Options{})
+	return CheckDisallowedWithOptions(prefix, spec, DefaultOption)
 }
 
 // CheckDisallowedWithOptions is like CheckDisallowed() but with specified options.
@@ -196,11 +205,15 @@ func CheckDisallowedWithOptions(prefix string, spec interface{}, options Options
 
 // Process populates the specified struct based on environment variables
 func Process(prefix string, spec interface{}) error {
-	return ProcessWithOptions(prefix, spec, Options{})
+	return ProcessWithOptions(prefix, spec, DefaultOption)
 }
 
 // ProcessWithOptions is like Process() but with specified options.
 func ProcessWithOptions(prefix string, spec interface{}, options Options) error {
+	if options.TagName == "" {
+		options.TagName = "envconfig"
+	}
+
 	infos, err := gatherInfo(prefix, spec, options)
 
 	for _, info := range infos {
@@ -248,7 +261,7 @@ func ProcessWithOptions(prefix string, spec interface{}, options Options) error 
 
 // MustProcess is the same as Process but panics if an error occurs
 func MustProcess(prefix string, spec interface{}) {
-	MustProcessWithOptions(prefix, spec, Options{})
+	MustProcessWithOptions(prefix, spec, DefaultOption)
 }
 
 // MustProcessWithOptions is like MustProcess() but with specified options.

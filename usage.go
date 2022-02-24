@@ -111,7 +111,7 @@ func toTypeDescription(t reflect.Type) string {
 
 // Usage writes usage information to stdout using the default header and table format
 func Usage(prefix string, spec interface{}) error {
-	return UsageWithOptions(prefix, spec, Options{})
+	return UsageWithOptions(prefix, spec, DefaultOption)
 }
 
 // UsageWithOptions is like Usage() but with specified options.
@@ -127,7 +127,7 @@ func UsageWithOptions(prefix string, spec interface{}, options Options) error {
 
 // Usagef writes usage information to the specified io.Writer using the specified template specification
 func Usagef(prefix string, spec interface{}, out io.Writer, format string) error {
-	return UsagefWithOptions(prefix, spec, out, format, Options{})
+	return UsagefWithOptions(prefix, spec, out, format, DefaultOption)
 }
 
 // UsagefWithOptions is like Usagef() but with specified options.
@@ -163,7 +163,7 @@ func UsagefWithOptions(prefix string, spec interface{}, out io.Writer, format st
 
 // Usaget writes usage information to the specified io.Writer using the specified template
 func Usaget(prefix string, spec interface{}, out io.Writer, tmpl *template.Template) error {
-	return UsagetWithOptions(prefix, spec, out, tmpl, Options{})
+	return UsagetWithOptions(prefix, spec, out, tmpl, DefaultOption)
 }
 
 // UsagetWithOptions is like Usaget() but with specified options.

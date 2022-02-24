@@ -223,31 +223,37 @@ func TestProcessWithOptions(t *testing.T) {
 	var s Specification
 
 	os.Clearenv()
-	os.Setenv("ENV_CONFIG_DEBUG", "true")
-	os.Setenv("ENV_CONFIG_PORT", "8080")
-	os.Setenv("ENV_CONFIG_RATE", "0.5")
-	os.Setenv("ENV_CONFIG_USER", "Kelsey")
-	os.Setenv("ENV_CONFIG_TIMEOUT", "2m")
-	os.Setenv("ENV_CONFIG_ADMIN_USERS", "John,Adam,Will")
-	os.Setenv("ENV_CONFIG_MAGIC_NUMBERS", "5,10,20")
-	os.Setenv("ENV_CONFIG_EMPTY_NUMBERS", "")
-	os.Setenv("ENV_CONFIG_BYTE_SLICE", "this is a test value")
-	os.Setenv("ENV_CONFIG_COLOR_CODES", "red:1,green:2,blue:3")
+	os.Setenv("ENV_CONFIG__DEBUG", "true")
+	os.Setenv("ENV_CONFIG__PORT", "8080")
+	os.Setenv("ENV_CONFIG__RATE", "0.5")
+	os.Setenv("ENV_CONFIG__USER", "Kelsey")
+	os.Setenv("ENV_CONFIG__TIMEOUT", "2m")
+	os.Setenv("ENV_CONFIG__ADMIN_USERS", "John,Adam,Will")
+	os.Setenv("ENV_CONFIG__MAGIC_NUMBERS", "5,10,20")
+	os.Setenv("ENV_CONFIG__EMPTY_NUMBERS", "")
+	os.Setenv("ENV_CONFIG__BYTE_SLICE", "this is a test value")
+	os.Setenv("ENV_CONFIG__COLOR_CODES", "red:1,green:2,blue:3")
 	os.Setenv("SERVICE_HOST", "127.0.0.1")
-	os.Setenv("ENV_CONFIG_TTL", "30")
-	os.Setenv("ENV_CONFIG_REQUIRED_VAR", "foo")
-	os.Setenv("ENV_CONFIG_IGNORED", "was-not-ignored")
-	os.Setenv("ENV_CONFIG_OUTER_INNER", "iamnested")
-	os.Setenv("ENV_CONFIG_AFTER_NESTED", "after")
-	os.Setenv("ENV_CONFIG_HONOR", "honor")
-	os.Setenv("ENV_CONFIG_DATETIME", "2016-08-16T18:57:05Z")
-	os.Setenv("ENV_CONFIG_MULTIWORDVAR", "dont_split")
-	os.Setenv("ENV_CONFIG_MULTI_WORD_VAR_WITH_AUTO_SPLIT", "24")
-	os.Setenv("ENV_CONFIG_MULTI_WORD_ACR_WITH_AUTO_SPLIT", "25")
-	os.Setenv("ENV_CONFIG_URL_VALUE", "https://github.com/kelseyhightower/envconfig")
-	os.Setenv("ENV_CONFIG_URL_POINTER", "https://github.com/kelseyhightower/envconfig")
+	os.Setenv("ENV_CONFIG__TTL", "30")
+	os.Setenv("ENV_CONFIG__REQUIRED_VAR", "foo")
+	os.Setenv("ENV_CONFIG__IGNORED", "was-not-ignored")
+	os.Setenv("ENV_CONFIG__OUTER__INNER", "iamnested")
+	os.Setenv("ENV_CONFIG__AFTER_NESTED", "after")
+	os.Setenv("ENV_CONFIG__HONOR", "honor")
+	os.Setenv("ENV_CONFIG__DATETIME", "2016-08-16T18:57:05Z")
+	os.Setenv("ENV_CONFIG__MULTIWORDVAR", "dont_split")
+	os.Setenv("ENV_CONFIG__MULTI_WORD_VAR_WITH_AUTO_SPLIT", "24")
+	os.Setenv("ENV_CONFIG__MULTI_WORD_ACR_WITH_AUTO_SPLIT", "25")
+	os.Setenv("ENV_CONFIG__URL_VALUE", "https://github.com/kelseyhightower/envconfig")
+	os.Setenv("ENV_CONFIG__URL_POINTER", "https://github.com/kelseyhightower/envconfig")
 
-	if err := ProcessWithOptions("env_config", &s, Options{SplitWords: true}); err != nil {
+	opt := Options{
+		TagName:        "envconfig",
+		SplitWords:     true,
+		WordSeperator:  "_",
+		InnerSeperator: "__",
+	}
+	if err := ProcessWithOptions("env_config", &s, opt); err != nil {
 		t.Error(err.Error())
 	}
 
@@ -1011,6 +1017,6 @@ func BenchmarkGatherInfo(b *testing.B) {
 	os.Setenv("ENV_CONFIG_MULTI_WORD_VAR_WITH_AUTO_SPLIT", "24")
 	for i := 0; i < b.N; i++ {
 		var s Specification
-		gatherInfo("env_config", &s, Options{})
+		gatherInfo("env_config", &s, DefaultOption)
 	}
 }
